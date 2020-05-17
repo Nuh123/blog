@@ -1,0 +1,17 @@
+{
+  "name": "vuePressStart",
+  "version": "1.0.0",
+  "description": "study vueprass",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vuepress dev .  --open",
+    "build": "vuepress bulid ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@vuepress/plugin-back-to-top": "^1.5.0"
+  }
+}
