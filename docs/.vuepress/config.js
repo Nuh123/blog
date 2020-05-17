@@ -2,13 +2,14 @@
 * @Author: name
 * @Date:   2020-05-17 11:55:42
 * @Last Modified by:   name
-* @Last Modified time: 2020-05-17 23:52:37
+* @Last Modified time: 2020-05-18 00:09:58
 */
 
 module.exports = {
-  title: 'Hello VuePress',
-  description: 'Just playing around',
-  themeConfig: {
+    base： '/blog/'
+    title: 'Hello VuePress',
+    description: 'Just playing around',
+    themeConfig: {
         // navbar: false,
         // repo: 'https://github.com/Nuh123/gitpage-study',
         // 自定义仓库链接文字。
