@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "vuepress dev .  --open",
-    "build": "vuepress bulid ."
+    "dev": "vuepress dev docs  --open",
+    "build": "vuepress build docs"
   },
   "keywords": [],
   "author": "",
