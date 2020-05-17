@@ -4,7 +4,6 @@
 * @Last Modified by:   name
 * @Last Modified time: 2020-05-18 01:40:25
 */
-
 module.exports = {
     base: '/blog/',
     title: 'Hello VuePress',
