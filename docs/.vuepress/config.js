@@ -67,7 +67,24 @@ module.exports = {
 
                     ]
                 },
-                
+                {
+                    title: 'react相关',   // 必要的
+                    //path: '/foo/',      // 可选的, 标题的跳转链接，应为绝对路径且必须存在
+                    //collapsable: false, // 可选的, 默认值是 true,
+                    sidebarDepth: 2,    // 可选的, 默认值是 1
+                    children: [
+                        ['./react/base', 'react基础'],
+
+                    ]
+                },
+                {
+                    title: 'css和html',   // 必要的
+                    sidebarDepth: 2,    // 可选的, 默认值是 1
+                    children: [
+                        ['./html&css/index', 'css和html基础'],
+
+                    ]
+                },
             ],
 
             '/view/project/': [
