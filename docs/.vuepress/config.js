@@ -1,13 +1,13 @@
 /*
-* @Author: name
-* @Date:   2020-05-17 11:55:42
-* @Last Modified by:   name
-* @Last Modified time: 2020-05-18 01:40:25
+* @Author            : name
+* @Date              : 2020-05-17 11: 55: 42
+* @Last Modified by  : mikey.zhaopeng
+* @Last Modified time: 2020-09-10 10: 21: 04
 */
 
 module.exports = {
-    base: '/blog/',
-    title: 'Hello VuePress',
+    base       : '/blog/',
+    title      : 'Hello VuePress',
     description: 'Just playing around',
     themeConfig: {
         // sidebarDepth: 2,
@@ -36,8 +36,8 @@ module.exports = {
                     title: 'JS相关',   // 必要的
                     //path: '/foo/',      // 可选的, 标题的跳转链接，应为绝对路径且必须存在
                     //collapsable: false, // 可选的, 默认值是 true,
-                    sidebarDepth: 2,    // 可选的, 默认值是 1
-                    children: [
+                    sidebarDepth: 2,   // 可选的, 默认值是 1
+                    children    : [
                         ['./js/base', '基础'],
                         ['./js/object-oriented', '面向对象'],
                         ['./js/BOM', '浏览器对象模型'],
@@ -49,8 +49,8 @@ module.exports = {
                     title: 'ES6相关',   // 必要的
                     //path: '/foo/',      // 可选的, 标题的跳转链接，应为绝对路径且必须存在
                     //collapsable: false, // 可选的, 默认值是 true,
-                    sidebarDepth: 2,    // 可选的, 默认值是 1
-                    children: [
+                    sidebarDepth: 2,   // 可选的, 默认值是 1
+                    children    : [
                         ['./es6/asyn-reslove', '异步处理'],
                         ['./es6/class', '类写法'],
 
@@ -60,10 +60,10 @@ module.exports = {
                     title: 'vue相关',   // 必要的
                     //path: '/foo/',      // 可选的, 标题的跳转链接，应为绝对路径且必须存在
                     //collapsable: false, // 可选的, 默认值是 true,
-                    sidebarDepth: 2,    // 可选的, 默认值是 1
-                    children: [
+                    sidebarDepth: 2,   // 可选的, 默认值是 1
+                    children    : [
                         ['./vue/base', 'vue基础'],
-                        ['./es6/class', '类写法'],
+                        ['./vue/design', '原理问题'],
 
                     ]
                 },
@@ -71,16 +71,16 @@ module.exports = {
                     title: 'react相关',   // 必要的
                     //path: '/foo/',      // 可选的, 标题的跳转链接，应为绝对路径且必须存在
                     //collapsable: false, // 可选的, 默认值是 true,
-                    sidebarDepth: 2,    // 可选的, 默认值是 1
-                    children: [
+                    sidebarDepth: 2,   // 可选的, 默认值是 1
+                    children    : [
                         ['./react/base', 'react基础'],
 
                     ]
                 },
                 {
-                    title: 'css和html',   // 必要的
-                    sidebarDepth: 2,    // 可选的, 默认值是 1
-                    children: [
+                    title       : 'css和html',   // 必要的
+                    sidebarDepth: 2,            // 可选的, 默认值是 1
+                    children    : [
                         ['./html&css/index', 'css和html基础'],
 
                     ]
@@ -97,9 +97,9 @@ module.exports = {
                 {
                     title: '第一大类',   // 必要的
                     //path: '/foo/',      // 可选的, 标题的跳转链接，应为绝对路径且必须存在
-                    collapsable: false, // 可选的, 默认值是 true,
-                    sidebarDepth: 2,    // 可选的, 默认值是 1
-                    children: [
+                    collapsable : false,   // 可选的, 默认值是 true,
+                    sidebarDepth: 2,       // 可选的, 默认值是 1
+                    children    : [
                         ['one', '第一项'],
                         ['two', '第二项']
                     ]
@@ -110,18 +110,18 @@ module.exports = {
 
             '/view/vuepress/': [
                 {
-                    title: '开发相关',   // 必要的
-                    collapsable: false, // 可选的, 默认值是 true,
-                    sidebarDepth: 2,    // 可选的, 默认值是 1
-                    children: [
+                    title       : '开发相关',   // 必要的
+                    collapsable : false,    // 可选的, 默认值是 true,
+                    sidebarDepth: 2,        // 可选的, 默认值是 1
+                    children    : [
                         ['./develop/development', '试着开发']
                     ]
                 },
                 {
-                    title: '部署相关',   // 必要的
-                    collapsable: false, // 可选的, 默认值是 true,
-                    sidebarDepth: 2,    // 可选的, 默认值是 1
-                    children: [
+                    title       : '部署相关',   // 必要的
+                    collapsable : false,    // 可选的, 默认值是 true,
+                    sidebarDepth: 2,        // 可选的, 默认值是 1
+                    children    : [
                         ['./publish/total', '总'],
                         ['./publish/deploy', 'deploy相关'],
                         ['./publish/other', '其它储备']
