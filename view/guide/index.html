@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>先设计 VNode 吧 | Hello VuePress</title>
+    <meta name="generator" content="VuePress 1.5.4">
+    
+    <meta name="description" content="Just playing around">
+    <link rel="preload" href="/blog/assets/css/0.styles.c000394e.css" as="style"><link rel="preload" href="/blog/assets/js/app.70d17e5a.js" as="script"><link rel="preload" href="/blog/assets/js/2.26d232c5.js" as="script"><link rel="preload" href="/blog/assets/js/6.ec211b05.js" as="script"><link rel="prefetch" href="/blog/assets/js/10.cbaab34c.js"><link rel="prefetch" href="/blog/assets/js/11.ab43f141.js"><link rel="prefetch" href="/blog/assets/js/12.5acc5370.js"><link rel="prefetch" href="/blog/assets/js/13.14b08fde.js"><link rel="prefetch" href="/blog/assets/js/14.403cfb6d.js"><link rel="prefetch" href="/blog/assets/js/15.99e92427.js"><link rel="prefetch" href="/blog/assets/js/16.e81ce562.js"><link rel="prefetch" href="/blog/assets/js/17.e8f1ad32.js"><link rel="prefetch" href="/blog/assets/js/18.9b59a1f4.js"><link rel="prefetch" href="/blog/assets/js/19.7cd95b8b.js"><link rel="prefetch" href="/blog/assets/js/20.44c57bbc.js"><link rel="prefetch" href="/blog/assets/js/21.4ef924c0.js"><link rel="prefetch" href="/blog/assets/js/22.c91b40e3.js"><link rel="prefetch" href="/blog/assets/js/23.07fcdd83.js"><link rel="prefetch" href="/blog/assets/js/24.3743d93d.js"><link rel="prefetch" href="/blog/assets/js/25.43792e7b.js"><link rel="prefetch" href="/blog/assets/js/26.506ab063.js"><link rel="prefetch" href="/blog/assets/js/27.47234a33.js"><link rel="prefetch" href="/blog/assets/js/28.ad117880.js"><link rel="prefetch" href="/blog/assets/js/29.104ac7b7.js"><link rel="prefetch" href="/blog/assets/js/3.68218527.js"><link rel="prefetch" href="/blog/assets/js/30.d19ef04e.js"><link rel="prefetch" href="/blog/assets/js/31.b6872cfe.js"><link rel="prefetch" href="/blog/assets/js/32.b1d09060.js"><link rel="prefetch" href="/blog/assets/js/33.7509cfdf.js"><link rel="prefetch" href="/blog/assets/js/34.cc0fcef9.js"><link rel="prefetch" href="/blog/assets/js/35.0facfdb4.js"><link rel="prefetch" href="/blog/assets/js/36.9db8181a.js"><link rel="prefetch" href="/blog/assets/js/37.36d32865.js"><link rel="prefetch" href="/blog/assets/js/4.ee169d2f.js"><link rel="prefetch" href="/blog/assets/js/5.452ccd01.js"><link rel="prefetch" href="/blog/assets/js/7.f55607fe.js"><link rel="prefetch" href="/blog/assets/js/8.be035806.js"><link rel="prefetch" href="/blog/assets/js/9.ace6de5c.js">
+    <link rel="stylesheet" href="/blog/assets/css/0.styles.c000394e.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/blog/" class="home-link router-link-active"><!----> <span class="site-name">Hello VuePress</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <nav class="nav-links can-hide"><div class="nav-item"><a href="/blog/" class="nav-link">
+  主页
+</a></div><div class="nav-item"><a href="/blog/view/guide/" aria-current="page" class="nav-link router-link-exact-active router-link-active">
+  指南
+</a></div><div class="nav-item"><a href="/blog/view/knowledge/" class="nav-link">
+  储备
+</a></div><div class="nav-item"><a href="/blog/view/project/" class="nav-link">
+  项目
+</a></div><div class="nav-item"><a href="/blog/view/vuepress/" class="nav-link">
+  文档开发
+</a></div> <!----></nav></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><nav class="nav-links"><div class="nav-item"><a href="/blog/" class="nav-link">
+  主页
+</a></div><div class="nav-item"><a href="/blog/view/guide/" aria-current="page" class="nav-link router-link-exact-active router-link-active">
+  指南
+</a></div><div class="nav-item"><a href="/blog/view/knowledge/" class="nav-link">
+  储备
+</a></div><div class="nav-item"><a href="/blog/view/project/" class="nav-link">
+  项目
+</a></div><div class="nav-item"><a href="/blog/view/vuepress/" class="nav-link">
+  文档开发
+</a></div> <!----></nav>  <ul class="sidebar-links"><li><a href="/blog/view/guide/toal.html" class="sidebar-link">该项目指南</a></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading"><span>第一大类</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/blog/view/guide/one.html" class="sidebar-link">第一项</a></li><li><a href="/blog/view/guide/two.html" class="sidebar-link">第二项</a></li></ul></section></li><li><a href="/blog/view/guide/three.html" class="sidebar-link">第三项</a></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="先设计-vnode-吧"><a href="#先设计-vnode-吧" class="header-anchor">#</a> 先设计 VNode 吧</h1> <p>上一章讲述了组件的本质，知道了一个组件的产出是 <code>VNode</code>，渲染器(<code>Renderer</code>)的渲染目标也是 <code>VNode</code>。可见 <code>VNode</code> 在框架设计的整个环节中都非常重要，甚至<strong>设计 <code>VNode</code> 本身就是在设计框架</strong>，<code>VNode</code> 的设计还会对后续算法的性能产生影响。本章我们就着手对 <code>VNode</code> 进行一定的设计，尝试用 <code>VNode</code> 描述各类渲染内容。</p> <h2 id="用-vnode-描述真实-dom"><a href="#用-vnode-描述真实-dom" class="header-anchor">#</a> 用 VNode 描述真实 DOM</h2> <p>一个 <code>html</code> 标签有它的名字、属性、事件、样式、子节点等诸多信息，这些内容都需要在 <code>VNode</code> 中体现，我们可以用如下对象来描述一个红色背景的正方形 <code>div</code> 元素：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">const</span> elementVNode <span class="token operator">=</span> <span class="token punctuation">{</span>
+  tag<span class="token operator">:</span> <span class="token string">'div'</span><span class="token punctuation">,</span>
+  data<span class="token operator">:</span> <span class="token punctuation">{</span>
+    style<span class="token operator">:</span> <span class="token punctuation">{</span>
+      width<span class="token operator">:</span> <span class="token string">'100px'</span><span class="token punctuation">,</span>
+      height<span class="token operator">:</span> <span class="token string">'100px'</span><span class="token punctuation">,</span>
+      backgroundColor<span class="token operator">:</span> <span class="token string">'red'</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>我们使用 <code>tag</code> 属性来存储标签的名字，用 <code>data</code> 属性来存储该标签的附加信息，比如 <code>style</code>、<code>class</code>、事件等，通常我们把一个 <code>VNode</code> 对象的 <code>data</code> 属性称为 <code>VNodeData</code>。</p> <p>为了描述子节点，我们需要给 <code>VNode</code> 对象添加 <code>children</code> 属性，如下 <code>VNode</code> 对象用来描述一个有子节点的 <code>div</code> 元素：</p> <div class="language-js extra-class"><div class="highlight-lines"><br><br><br><div class="highlighted"> </div><div class="highlighted"> </div><div class="highlighted"> </div><div class="highlighted"> </div><br><br></div><pre class="language-js"><code><span class="token keyword">const</span> elementVNode <span class="token operator">=</span> <span class="token punctuation">{</span>
+  tag<span class="token operator">:</span> <span class="token string">'div'</span><span class="token punctuation">,</span>
+  data<span class="token operator">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+  children<span class="token operator">:</span> <span class="token punctuation">{</span>
+    tag<span class="token operator">:</span> <span class="token string">'span'</span><span class="token punctuation">,</span>
+    data<span class="token operator">:</span> <span class="token keyword">null</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>若有多个子节点，则可以把 <code>children</code> 属性设计为一个数组：</p> <div class="language-js extra-class"><div class="highlight-lines"><br><br><br><div class="highlighted"> </div><div class="highlighted"> </div><div class="highlighted"> </div><div class="highlighted"> </div><div class="highlighted"> </div><div class="highlighted"> </div><div class="highlighted"> </div><div class="highlighted"> </div><div class="highlighted"> </div><div class="highlighted"> </div><br><br></div><pre class="language-js"><code><span class="token keyword">const</span> elementVNode <span class="token operator">=</span> <span class="token punctuation">{</span>
+  tag<span class="token operator">:</span> <span class="token string">'div'</span><span class="token punctuation">,</span>
+  data<span class="token operator">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+  children<span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+      tag<span class="token operator">:</span> <span class="token string">'h1'</span><span class="token punctuation">,</span>
+      data<span class="token operator">:</span> <span class="token keyword">null</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span>
+      tag<span class="token operator">:</span> <span class="token string">'p'</span><span class="token punctuation">,</span>
+      data<span class="token operator">:</span> <span class="token keyword">null</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>除了标签元素之外，DOM 中还有文本节点，我们可以用如下 <code>VNode</code> 对象来描述一个文本节点：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">const</span> textVNode <span class="token operator">=</span> <span class="token punctuation">{</span>
+  tag<span class="token operator">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+  data<span class="token operator">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+  children<span class="token operator">:</span> <span class="token string">'文本内容'</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>如上，由于文本节点没有标签名字，所以它的 <code>tag</code> 属性值为 <code>null</code>。由于文本节点也无需用额外的 <code>VNodeData</code> 来描述附加属性，所以其 <code>data</code> 属性值也是 <code>null</code>。</p> <p>唯一需要注意的是我们使用 <code>children</code> 属性来存储一个文本节点的文本内容。有的同学可能会问：“可不可以新建一个属性 <code>text</code> 来存储文本内容呢？”</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">const</span> textVNode <span class="token operator">=</span> <span class="token punctuation">{</span>
+  tag<span class="token operator">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+  data<span class="token operator">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+  children<span class="token operator">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+  text<span class="token operator">:</span> <span class="token string">'文本内容'</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>这完全没有问题，这取决于你如何设计，但是<strong>尽可能的在保证语义能够说得通的情况下复用属性，会使 <code>VNode</code> 对象更加轻量</strong>，所以我们采取使用 <code>children</code> 属性来存储文本内容的方案。</p> <p>如下是一个以文本节点作为子节点的 <code>div</code> 标签的 <code>VNode</code> 对象：</p> <div class="language-js extra-class"><pre class="language-js"><code><span class="token keyword">const</span> elementVNode <span class="token operator">=</span> <span class="token punctuation">{</span>
+  tag<span class="token operator">:</span> <span class="token string">'div'</span><span class="token punctuation">,</span>
+  data<span class="token operator">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+  children<span class="token operator">:</span> <span class="token punctuation">{</span>
+    tag<span class="token operator">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+    data<span class="token operator">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+    children<span class="token operator">:</span> <span class="token string">'文本内容'</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h2 id="用-vnode-描述抽象内容"><a href="#用-vnode-描述抽象内容" class="header-anchor">#</a> 用 VNode 描述抽象内容</h2> <p>什么是抽象内容呢？组件就属于抽象内容，比如你在 模板 或 <code>jsx</code> 中使用了一个组件，如下：</p> <div class="language-html extra-class"><pre class="language-html"><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>MyComponent</span> <span class="token punctuation">/&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+</code></pre></div></div> <footer class="page-edit"><!----> <!----></footer> <!----> </main></div><div class="global-ui"></div></div>
+    <script src="/blog/assets/js/app.70d17e5a.js" defer></script><script src="/blog/assets/js/2.26d232c5.js" defer></script><script src="/blog/assets/js/6.ec211b05.js" defer></script>
+  </body>
+</html>
