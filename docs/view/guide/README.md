@@ -8,15 +8,15 @@
 
 ```js
 const elementVNode = {
-  tag: 'div',
+  tag: "div",
   data: {
     style: {
-      width: '100px',
-      height: '100px',
-      backgroundColor: 'red'
-    }
-  }
-}
+      width: "100px",
+      height: "100px",
+      backgroundColor: "red",
+    },
+  },
+};
 ```
 
 我们使用 `tag` 属性来存储标签的名字，用 `data` 属性来存储该标签的附加信息，比如 `style`、`class`、事件等，通常我们把一个 `VNode` 对象的 `data` 属性称为 `VNodeData`。
@@ -25,32 +25,32 @@ const elementVNode = {
 
 ```js {4-7}
 const elementVNode = {
-  tag: 'div',
+  tag: "div",
   data: null,
   children: {
-    tag: 'span',
-    data: null
-  }
-}
+    tag: "span",
+    data: null,
+  },
+};
 ```
 
 若有多个子节点，则可以把 `children` 属性设计为一个数组：
 
 ```js {4-13}
 const elementVNode = {
-  tag: 'div',
+  tag: "div",
   data: null,
   children: [
     {
-      tag: 'h1',
-      data: null
+      tag: "h1",
+      data: null,
     },
     {
-      tag: 'p',
-      data: null
-    }
-  ]
-}
+      tag: "p",
+      data: null,
+    },
+  ],
+};
 ```
 
 除了标签元素之外，DOM 中还有文本节点，我们可以用如下 `VNode` 对象来描述一个文本节点：
@@ -59,8 +59,8 @@ const elementVNode = {
 const textVNode = {
   tag: null,
   data: null,
-  children: '文本内容'
-}
+  children: "文本内容",
+};
 ```
 
 如上，由于文本节点没有标签名字，所以它的 `tag` 属性值为 `null`。由于文本节点也无需用额外的 `VNodeData` 来描述附加属性，所以其 `data` 属性值也是 `null`。
@@ -72,8 +72,8 @@ const textVNode = {
   tag: null,
   data: null,
   children: null,
-  text: '文本内容'
-}
+  text: "文本内容",
+};
 ```
 
 这完全没有问题，这取决于你如何设计，但是**尽可能的在保证语义能够说得通的情况下复用属性，会使 `VNode` 对象更加轻量**，所以我们采取使用 `children` 属性来存储文本内容的方案。
@@ -82,14 +82,14 @@ const textVNode = {
 
 ```js
 const elementVNode = {
-  tag: 'div',
+  tag: "div",
   data: null,
   children: {
     tag: null,
     data: null,
-    children: '文本内容'
-  }
-}
+    children: "文本内容",
+  },
+};
 ```
 
 ## 用 VNode 描述抽象内容
@@ -101,4 +101,3 @@ const elementVNode = {
   <MyComponent />
 </div>
 ```
-
