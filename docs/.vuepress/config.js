@@ -42,7 +42,8 @@ module.exports = {
                         ['./js/object-oriented', '面向对象'],
                         ['./js/BOM', '浏览器对象模型'],
                         ['./js/DOM', '文档对象模型'],
-                        ['./js/senior', '高阶']
+                        ['./js/senior', '高阶'],
+                        ['./js/interview', '面试'],
                     ]
                 },
                 {
