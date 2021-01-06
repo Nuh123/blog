@@ -195,3 +195,91 @@
   ```
   - for in 循环拿到的是属性名， for of 循环拿到的是属性值，之前的其它两种循环也是只能拿到属性名
   - 声明式的类数组对象不具备迭代器，可以通过手动部署实现使用 for of，具体就是在该对象上部署迭代器对象，并指向数组的迭代器对象
+
+## this 相关
+
+### 1. 概述
+
+- 具体表示执行主体，就是谁把某个函数执行，和在哪创建和在哪执行都没有关系，重点就是谁**执行**
+- 和函数执行上下文是两个体系，不相同
+
+### 2. 函数执行
+
+- 看函数前面是否有“点”，没有点 this 就是 window（严格模式下是 undefined），有点就是点前面的那个东西
+- 这里可以理解为 window 执行了该函数，但该函数不一定是 window 的方法
+
+### 3. 当做方法
+
+- 主要还是看是当做方法使用还是，通过一些手段当函数使用
+- 作为方法调用时，指向该方法所属的对象
+
+### 4. 构造函数
+
+- 正常的构造函数，this 指向实例（也就是构造函数创建的新对象）
+- 但构造函数有手写 return 时分两种情况，基本类型无影响，引用类型会破坏原本的机制，指向指定的引用类型数据[其它相关可以参考](https://wangdoc.com/javascript/oop/new.html#new-%E5%91%BD%E4%BB%A4%E7%9A%84%E5%8E%9F%E7%90%86)
+
+### 5. 箭头函数
+
+- 箭头函数'没有'this（arguments、super、new.target 也没有），主要是该 this 主要取决于定义时的 this，没有自己的
+- 箭头函数除 this 外，不可以当构造函数，不可以使用 arguments 对象，不可以使用 yeid 命令也就是不能做 Generator 函数
+- [箭头函数其它特殊之处](https://es6.ruanyifeng.com/#docs/function#%E7%AE%AD%E5%A4%B4%E5%87%BD%E6%95%B0)
+
+### 6. 手动改变
+
+- call、apply、bind（Function.prtotype 上）可以手动改变
+- `bind` 执行后是返回一个未执行，但改变了 this 的新函数（这里的延迟执行需要使用闭包存储参数）
+- `call` 和 `apply` 是修改 this 且执行，主要区别是参数传递方式上的区别，call 散着，apply 是一个数组
+- 基本类型值可以添加属性，但是没法访问到;基本类型可以通过包一层 Object 来转为对应的包装类
+- 手写 call 方法
+  ```js
+  //主要原理就是对象的方法正常调用this指向该对象
+  Function.prototype.myCall = function (context, ...params) {
+    context = context == null ? window : context;
+    context = /^(object|function)$/i.test(typeof context)
+      ? context
+      : Object(context);
+    let self = this,
+      key = Symbol("key"),
+      result;
+    //主要是防止撞名和处理函数有返回值的情况
+    context[key] = self;
+    result = context[key](...params);
+    delete context[key];
+    return result;
+  };
+  ```
+- 手写 bind 方法
+  ```js
+  //主要原理与上面一致，重点是返回值的处理上不一样
+  Function.prototype.myBind = function (context, ...params) {
+    context = context == null ? window : context;
+    context = /^(object|function)$/i.test(typeof context)
+      ? context
+      : Object(context);
+    let self = this;
+    return function (...args) {
+      //self.call(context, ...params);
+      self.apply(context, params.concat(args));
+    };
+  };
+  ```
+- 这两版手写在核心功能上没有问题，但毕竟不是专门的手写教学，所以肯定不够完美[详细手写](https://github.com/mqyqingfeng/Blog/issues/12)
+
+### 7. 鸭子类型
+
+- 长得像鸭子，就认为是鸭子，具体到 js 中就是，类数组就认为‘是数组’，就是可以通过一些方法来使用数组方法（Array.from、展开运算符、[].slice 不传参数 Array.prototype.fun.call()）
+- 鸭子类型的原则是面向接口编程，而不是面向实现编程（就是使用某方法存在即可，不纠结它的实际类型），在 isArray 出现前（或需要兼容 ie 低版本），就可以用拥有 push 方法和 length 属性判断是否为数组
+- 数组的 toString 和 join(',')的结果一致（数组的 toSrting 和对象的 toString 不是同一个方法）
+- 手写 slice
+  ```js
+  Array.prototype.mySlice = function (start = 0, end) {
+    if (start > end) return [];
+    // 这里也可以做更多的健壮处理
+    let res = [],
+      len = end || this.length;
+    for (let i = start; i < len; i++) {
+      res.push(this[i]);
+    }
+    return res;
+  };
+  ```
