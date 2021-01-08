@@ -371,3 +371,181 @@
 ### 6. 文件解析（页面渲染）
 
 略，不是这里的重点
+
+## 前后端通信中的'同源/跨域'解决方案
+
+### 1. 前端开发的通信历史
+
+- 服务器渲染
+- 客户端渲染（同源策略）
+- 客户端渲染（跨域方案）
+- 半服务器渲染（SSR）
+
+### 2. 你认为 Ajax 的意义是啥
+
+- **局部刷新**是最关键的，让客户端和服务端各司其职
+- 与之对应的是全局刷新，变一次数据，服务端需要返回一套完整的全新页面；局部刷新就是结合 DOM 接口，更新时只需要重新获取数据，在客户端重新渲染
+
+### 3. Ajax、axios、fetch 对比
+
+- 基础见 `基于 JS 实现 Ajax 并发请求的控制章节`
+- 自己写 ajax
+  ```js
+  function ajax(option = {}) {
+    option = Object.assign(
+      {
+        url: "",
+        method: "get",
+        data: null,
+        // data需要根据method的不同，做不同的处理
+        // get 请求是没有单独的请求体，参数是跟随url的，叫查询参数
+        // post 请求是直接放请求体就行
+        // 关于 content-type，get请求类的是x-www-form-urlencode;
+        // post根据后端要求会有不同值 formdata 和 application/json 等
+        success: null,
+      },
+      option
+    );
+    // 这里qs是一个库,下面的功能就是专为url传参，也就是x-www-form-urlencode类格式
+    options.data = qs.stringigy(oprion.data)
+    // 判断是否是get类请求
+    let isGet = /^(GET|DELETE|HEAD|OPTIONS)$/i.test(option.method)
+    if (isGet && option.data) {
+      let char = option.url.includes('?') ? '&' : '?'
+      option.url += `${char}${option.data}`
+      option.data = null
+    }
+    let xhr = new XMLHttpRequest();
+    xhr.open(option.method, option.url);
+    xhr.onreadystatechange = function () {
+      //if ((xhr.readyState === 4 && xhr.status = 200)) {
+      if(/^2\d{2}$/.test(xhr.status)  && xhr.readyState === 4){
+        tyepof option.success === 'function' ?
+        option.success(JSON.parse(xhr.responseText)) :
+        null
+      }
+    };
+    xhr.send(option.data);
+    //顺序很重要
+  }
+  ```
+- 串行执行 ajax 只能通过回调实现；asyns 属性是同步执行，性能问题严重
+- 自己实现'最素的 axios'
+
+  ```js
+  // 最初就是用promise包ajax来解决回调地狱问题,注意这里是基于ajax来使用promise
+  new Promise((resolve) => {
+    ajax({
+      url: "",
+      method: "get",
+      success(res) {
+        resolve(res);
+      },
+    });
+  }).then((res) => {
+    // 真正的success函数，如果考虑到封装使用，需要注意这里可能需要新pronmise被返回
+  });
+
+  // axios才是比较靠谱的解决方案，是直接用promise来包xhr，相当于是一种新版本的ajax
+  function ajax2(option = {}) {
+    option = Object.assign(
+      {
+        url: "",
+        method: "get",
+        data: null,
+        // data需要根据method的不同，做不同的处理
+        // get 请求是没有单独的请求体，参数是跟随url的，叫查询参数
+        // post 请求是直接放请求体就行
+        // 关于 content-type，get请求类的是x-www-form-urlencode;
+        // post根据后端要求会有不同值 formdata 和 application/json 等
+      },
+      option
+    );
+    // 这里qs是一个库,下面的功能就是专为url传参，也就是x-www-form-urlencode类格式
+    options.data = qs.stringigy(oprion.data);
+    // 判断是否是get类请求
+    let isGet = /^(GET|DELETE|HEAD|OPTIONS)$/i.test(option.method);
+    if (isGet && option.data) {
+      let char = option.url.includes("?") ? "&" : "?";
+      option.url += `${char}${option.data}`;
+      option.data = null;
+    }
+    // 就单纯的对xhr过程做promise包装
+    // 这里注意一定是return一个promise，这也是promise链式调用的基础
+    return new Promise((resolve, reject) => {
+      let xhr = new XMLHttpRequest();
+      xhr.open(option.method, option.url);
+      xhr.onreadystatechange = function () {
+        if (!/^2\d{2}$/i.test(xhr.status)) {
+          reject(xhr);
+          return;
+        }
+        if (/^2\d{2}$/.test(xhr.status) && xhr.readyState === 4) {
+          resolve(JSON.parse(xhr.responseText));
+        }
+      };
+      xhr.send(option.data);
+      //顺序很重要
+    });
+  }
+  // axios 的多重调用方式实现
+  ["get", "post", "put"].forEach((item) => {
+    ajax2[item] = function (url = "", data = {}) {
+      return ajax2({
+        url,
+        method: item,
+        data,
+      });
+    };
+  });
+  // 函数既是函数，也是引用类型（就是可以打点，设置、访问属性）
+  ```
+
+- 实际使用中一般会对 axios 做二次封装，讲了 axios 的使用中的一些常规操作，慕课网有个详细的教程，这里不纠缠细节
+- 主要是配置 axios 的默认 baseURL、timeout、请求头、transformRequest（参数转换函数）等；最重要的是两个拦截器，请求拦截器里一般带认证信息（token），但这里的处理上它这里处理的不太细致（token 的过期及加密问题）；响应拦截器主要是对状态做一个统一的处理，具体的分类还需要配合后台那边
+- fetch 不管状态码是多少，只要服务器返回就算成功，只有断网才算失败，所以虽然是原生支持 promise 的 API，但实际使用时还是需要大量封装，核心是在第一个返回里做拦截操作（就是对状态码的判断），代码暂时不贴
+
+```js
+// Fetch 封装
+function ajax3(option = {}) {
+
+    // 这里就是对options的处理和其它一些与fetch无关的操作
+
+    return fetch(url,options)
+    .then(res => {
+      // 这里处理的是多种状态码，包括非200
+      if(!/^(2|3)\d{2}$/i.test(ress.status)){
+        switch(res.status) {
+          case 401:
+            break;
+          case 403:
+            break;
+          case 404:
+            break;
+        }
+        return Promise.reject(res)
+      }
+      return res.json()  // fetch 方法
+    })
+    .catch(err) => {
+      if(!window.navigatior.onLine){
+        // 断网了，做相应的操作
+        return
+      }
+      return Promise.reject(err)
+    }
+```
+
+### 4. 跨域处理方案
+
+- 跨域产生的原因
+  - 跨域的理论原理，浏览器出于安全方面的原因考虑设置了**同源策略**，[详细参考这里](https://wangdoc.com/javascript/bom/same-origin.html)
+  - **早些年**部署上前后没有分离，前后端部署在一个位置（同源、同一个文件夹、同一个端口），但开发中除非同一个人写，否则一定会有跨域问题（开发中后端还是有自己的服务）
+  - 后面项目越来越复杂，衍生出**前后分离部署**、开发的情况，后端也分离服务器（web 静态资源服务器、图片服务器、数据服务器等）
+  - 甚至现在出现了一些调用**第三方 API**的情况
+- **伪方案**（仅解决线上为不分离的情况），**修改 host**，driver 下 etc 文件夹下的 host 文件（之前处理远程访问单点登陆问题的时候接触过）指定了本地的源，设为请求端的地址，骗过浏览器
+- **最老旧**的方式 JSONP 方案，主要是 script 标签不存在跨域限制（image 标签也不存在）只支持 get 请求，但对老服务器兼容。具体使用就是在接口后带查询参数键名为 callback 键值为回调函数名，全局要定义回调函数，接口返回的是函数的执行，其中带实参[具体参考这里](https://wangdoc.com/javascript/bom/same-origin.html#jsonp)
+- **最省事**的方式 CORS, 主要是通过设置`响应头`让浏览器允许即可，一般后端设置，一般设置三个`Access-Control-Allow-Origin: 需要的源`、` Access-Control-Allow-Headers：需要的请求头``Access-Control-Allow-Methods：需要的方式 `、`Access-Control-Allow-Credentiais:需要`、
+  其中在需要的源位置，可以设置为 * ，但需要明确的是，设为*之后无法带 cookie，这也是跨域资源共享的缺点
+- **最常用**的方式 Proxy, 开发中 webpack 中有自己代理模式来解决开发中的跨域问题，wbpack 会在本地建立自己的本地服务器（基于 node），网页端向本地服务器请求，本地服务器再代为请求接口服务器，从而避开浏览器的跨域限制；部署时一般通过 nginx 来实现代理
+- 当然还有一些不太常用的方案自己可以再自己研究下，比如 postmessage 一般用于 H5 和 app 通信时用，iframe 来的快，死的也快[具体看这里](https://wangdoc.com/javascript/bom/same-origin.html#ajax)
