@@ -372,6 +372,159 @@
 
 略，不是这里的重点
 
+## 5 道手写题
+
+### 拷贝
+
+- 深浅拷贝主要是对引用类型而言，主要区别是引用类型嵌套导致
+- 数组浅拷贝方法，解构（...）、concat、slice、手动遍历
+- 对象浅拷贝方法，解构（...）、assign、、手动遍历（symbol 类型需要特殊处理，前面的两种方法不需要）
+- 浅拷贝函数中基本类型值直接返回，symbol 和 Bigint 这两种需要特殊处理
+- 类型判断函数使用前面自己的 toType 函数（自己实现的类型判断函数）
+- 手写浅拷贝
+  ```js
+  function shallowClone(obj) {
+    // 调用外部的类型判断函数
+    let type = toType(obj);
+    cTor = obj.constructor;
+    //symbol 和 Bigint 的处理
+    if (/^(symbol|bigint)$/i.test(type)) return Object(obj);
+    //正则和日期
+    if (/^(regexp|date)$/i.test(type)) return new cTor(obj);
+    // 错误对象 Error
+    if (/^(regexp|date)$/i.test(type)) return new cTor(obj.message); //特殊处理的原因在于错误对象的构造函数传参特殊
+    // 函数
+    if (/^function$/i.test(type)) {
+      //返回新函数：新函数执行还是把原始函数执行，实现和原始函数一样的效果
+      //return obj.bind(this,...arguments)
+      return function () {
+        return obj.call(this, ...arguments);
+      };
+    }
+    //常规处理
+    if (/^(array|object)$/i.test(type)) {
+      //rerurn type = "array" ? [...obj] : {...obj}
+      //最粗暴办法，symbol已处理
+      let result = new cTor();
+      //let keys = Reflect.keys(okj);
+      //这里强调遍历所有属性添加到result中,对象没有部署迭代器对象for of是无法使用的，但for in或Object.keys()写起来麻烦
+      let keys = [...Object.keys(obj), ...Object.getOwnPropertySymbols(obj)];
+      for (let key of keys) {
+        result[key] = obj[key];
+      }
+      return result;
+    }
+    //这里认为一切皆可浅拷贝，对于一些无法处理的地方，可以考虑抛异常
+    return obj;
+  }
+  ```
+- 主要原理是判断拷贝的对象的下一层(属性值)是否为引用类型，是的话就对该属性值进行深拷贝；但实际上这里的处理逻辑是仅认为数组和对象有必要深拷，其它引用类型用浅拷贝就可
+- 手写深克隆
+  ```js
+  function deepClone(obj, cache = new Set()) {
+    let type = toType(obj),
+      cTor = obj.constructor;
+    if (!/^(array|object)$/i.test(type)) return shallowClone(obj);
+    //处理循环引用,也可以用{}或weakMap等，主要是能记录过处理过的数据即可
+    cache.add(obj);
+    if (cache.has(obj)) return obj;
+    //和上面一样强调遍历所有属性
+    let keys = [...Object.keys(obj), ...Object.getOwnPropertySymbols(obj)];
+    //这里强调遍历所有属性添加到result中,对象没有部署迭代器对象for of是无法使用的
+    for (let key of keys) {
+      result[key] = deepClone(obj[key]，cache);
+    }
+    return result;
+  }
+  ```
+- JSON.parse 和 JSON.striting 黑魔法的循环引用以及函数和一些特殊‘对象’无法复制的问题也都处理了
+- 更高级的再 lodash 的深克隆，处理的情况更多
+
+### 对象 merge（合并）
+
+- 对象合并的意义 插件（组件）封装时参数处理 和 业务上的需求（axios 上 params 和 optios 的处理）
+- Object.assign() （大多场景都能解决问题在全部是浅比较）和 jquery 中的 merge，以及自己实现
+- 深 浅比较，浅比较认为属性值不为空，就用后面的替换，深比较类似于深克隆的反向操作
+- 大致思路，基本类型直接替换；都为对象做补充或替换属性；一个为对象一个为基本类型，报错或替换（和顺序有关）；数组一般和基本类型操作一致；
+- 依旧使用外部 toType 方法
+- 手写 merge
+
+  ```js
+      fuction merge(options,params={}) {
+        function isObj(val) {
+            return toType (val) === "object"
+        }
+        Object.keys(params).forEach(key => {
+            let isA = isObj(options[key]),
+                isB = isObj(params[key]);
+            // A B 都为原始类型，直接替换，数组这里也这样操作
+            // A 是对象 B是原始值，抛出错误
+            // A 是原始值 B是对象，B替换A
+            // A B都是对象，依次遍历B中的每一项，或替换A中的内容，或添加；具体操作上就是赋值一次，有旧值覆盖，无旧值添加
+            if(isA && !isB) {
+                //提醒出错
+                throw new TypeError('must be object')
+            }
+            if(isA && isB){
+                options[key] = merge(options[key],params[key])
+                return
+            }
+            options[key] = params[key]
+        })
+
+
+      }
+  ```
+
+- 合并更高级的玩法还可以添加类型校验，如 vue 中 prop 传参
+
+### 函数柯里化两个应用（bind 和 curring）
+
+后期补充
+
+### queryURLParams 的三种实现
+
+后期补充
+
+### AOP 面向切片编程
+
+- POP 面向过程编程、OOP 面向对象编程
+- AOP 面向切片编程的主要作用是把一些与业务核心逻辑无关的功能抽取出来（如日志统计、安全控制、异常处理），再通过'动态植入'方式参入逻辑逻辑模块
+- 装饰器模式增强、promise（能实现，但不太好）
+- 面向切片效果展示
+  ```js
+  let func = () => {
+    //业务逻辑
+    console.log("func");
+  };
+  func
+    .before(() => {
+      console.log("before");
+    })
+    .after(() => {
+      console.log("after");
+    })();
+  ```
+- 实现思路
+  ```js
+  Function.prototype.before = function (callback) {
+    if (typeof callback !== "function") throw new Error("参数需为函数");
+    //这里 this 就是函数本身
+    let context = this;
+    return function (...params) {
+      //控制回调和函数本身执行
+      // 这里this是非function
+      callback.applly(this, params);
+      return context.call(this, ...params);
+    };
+  };
+  Function.prototype.after = function () {
+    //类似上面，只是循序不一致
+  };
+  //这里有个疑惑，连着before和after只执行一次
+  //换个思路就是把before返回的函数当做一个新的函数（'func'）就行，`context.call(this, ...params)`虽然执行了两次，但只有最里面的一层的context代表的是原始func
+  ```
+
 ## 前后端通信中的'同源/跨域'解决方案
 
 ### 1. 前端开发的通信历史
