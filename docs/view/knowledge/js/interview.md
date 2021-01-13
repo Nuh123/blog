@@ -525,6 +525,221 @@
   //换个思路就是把before返回的函数当做一个新的函数（'func'）就行，`context.call(this, ...params)`虽然执行了两次，但只有最里面的一层的context代表的是原始func
   ```
 
+## 基于 JS 实现 Ajax 并发请求的控制
+
+### Ajax、axios、Fetch 之间的核心区别
+
+- `Ajax` 实现前后端数据通信，基于 XMLHttpRequest,某些 IE 低版本是 ActivexObject，ajax 就是 jquery 对 xhr 的封装，使用回调模式
+- ```js
+  // 最简洁的xhr
+  let xhr = new XMLHttpRequest();
+  xhr.open("get", url);
+  xhr.onreadystatechange = function () {
+    if ((xhr.readyState === 4 && xhr.status = 200)) {
+      let text = xhr.responseText;
+      console.log(JSON.parse(text));
+      //callback(JSON.parse(text))
+    }
+  };
+  xhr.send();
+  //顺序很重要
+  ```
+- ajax 模式依赖回调模式解决异步问题，部分场景会出现无限嵌套情况，所以后来出现了 promise
+- `axios` 实质上还是对 XMLHttpRequest 的封装，只不过使用 promise 模式
+- `Fetch` 是 ES6 新出的通信方案，对标的是 XMLHttpRequest,使用 promise 模式，Fetch 只能算半个 axios，实际使用还是要进行一定程度的封装（没有错误处理）
+
+### 基于 promise.all 实现 Ajax 的串行和并行
+
+- `串行`：单挑（车轮战），请求是异步的，需要等前一个完成（成功）后才执行下一个（能保证顺序），例如登录之后才能拿用户信息
+- `并行`：一起上，同时发送多个请求，等多个请求都成功再做下一步（结果的顺序无法保证）
+- 浏览器中的 http 请求，是浏览器的网络进程完成的，可以同时多个，但 js 是单线程的，请求之后的操作就是一步一步来的
+- promise.all 就是来实现并行请求的，all 就是要所有请求都成功，all 里面参数是数组，数组元素为 promise 实例[具体使用看这](https://es6.ruanyifeng.com/#docs/promise#Promise-all)
+
+### promise.all 并发限制及 async-pool 的应用
+
+- `npm install asyncpool`
+- 并发限制是指，每个时刻并发执行的 promise 数量是固定的，最终执行结果还是保持原来的，一般这个数量在 5~7 为宜，像浏览器的网络请求一样，是有并发上限的
+- 这类问题出现的主要原因是，目前的单页面应用数据请求量是十分大的，考虑到优化问题所以会控制并发数，虽然浏览器本身有请求上限，但这个过程不受 js 控制
+- 插件（async-pool）并发控制
+  ```js
+  const delay = function (interval) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (interval === 1003) reject("reject");
+        resolve(interval);
+      }, interval);
+    });
+  };
+  let tasks = [
+    () => {
+      return delay(1000);
+    },
+    () => {
+      return delay(1003);
+    },
+    () => {
+      return delay(1005);
+    },
+    () => {
+      return delay(1002);
+    },
+    () => {
+      return delay(1004);
+    },
+    () => {
+      return delay(1006);
+    },
+  ];
+  Promise.all(tasks.map((task) => task())).then((res) => console.log(res));
+  // 上述方式虽然最粗暴的实现了并行请求，但并发数没有受到控制
+  let results = [];
+  import asyncPool from "asyncpool";
+  asyncPool(
+    // 并发数
+    2,
+    // 任务序列
+    tasks,
+    // 单个任务执行的操作
+    (task, next) => {
+      console.log(task);
+      task().then((res) => {
+        results.push(res);
+        next();
+      });
+    },
+    // 整个任务序列完成之后的回调
+    () => {}
+  );
+  ```
+
+### js 实现 Ajax 并发请求控制的两大解决方案
+
+```js
+// 任务序列如上
+// 实现1
+/*params
+ * tasks Array 任务序列 参考promise.all参数要求，额外需要函数包括promise实例
+ * pool Number 并发数
+ */
+function createRequest(tasks, pool = 5) {
+  // 思路：创造多个工作区，以工作区中的任务完成为衡量标准，空工作区（没有正在执行工作）需要被添加新任务
+  let result = [],
+    together = new Array(pool).fill(null),
+    index = 0;
+  together = together.map((item) => {
+    return new Promise((resolve, reject) => {
+      // 递归函数
+      const run = function () {
+        console.log("开始执行第" + index + "任务");
+        // 基线条件
+        if (index >= tasks.length) {
+          // 唯一的resolve
+          resolve();
+          return;
+        }
+        // 保证返回结果的顺序性，没这类要求的话可以不用
+        let oldIndex = index,
+          task = tasks[index++];
+        // 单个任务的操作，在单个任务执行成功后，通过递归向该任务区添加新（下一个）任务
+        task()
+          .then((res) => {
+            result[oldIndex] = res;
+            run();
+            // 这里结合promise 来克服了调用栈执行顺序的问题
+          })
+          .catch((err) => {
+            // 这个地方的reject是类似promise.all，即有一个失败，整个任务任务序列为失败，所以reject之后没有递归，
+            // 所以这里也算递归的基线条件，因为这里reject的是外层的promise
+            reject(err);
+          });
+      };
+      run();
+    });
+  });
+  // 所以这里才是并行的控制，结果的并行体现在这里；上面是并发的控制（递归），但也需要结合这里并行特点完成，
+  return Promise.all(together).then(() => result);
+}
+createRequest(tasks, 2)
+  .then((res) => {
+    // tasks需要全部成功
+    console.log("成功", res);
+  })
+  .catch((err) => {
+    // tasks中只要有一个失败就失败
+    console.log("失败", err);
+  });
+// 实现2
+function createReq(tasks, pool, callback) {
+  if (typeof pool === "function") {
+    callback = pool;
+    pool = 5;
+  }
+  if (typeof pool !== "number") pool = 5;
+  if (typeof callback !== "function") {
+    callback = (res) => {
+      console.log(res);
+    };
+  }
+  // 上面是健壮性考虑的参数校验
+  class TaskQueue {
+    constructor() {
+      this.running = 0;
+      this.queue = [];
+      // 上面这两个是关键属性
+      this.results = [];
+    }
+    pushTask(task) {
+      // 这里就是一个单纯维护内部任务的地方，且肩负启动轮询（执行）运行的任务
+      // 这种轮询触发的条件是添加了新的任务或者当前执行的某个任务执行完毕
+      let self = this;
+      self.queue.push(task);
+      self.next();
+    }
+    next() {
+      // 这里称为轮询吧其实不对，但也想不好其它准确的表达暂时就叫轮询吧，只要我部任务队列不为空，我就一直遍历我的任务队列，并尝试执行
+      // 上面说到尝试执行，最终是否执行就看另一个关键指标，当前在执行的任务数
+      // 一个任务开始执行，当前执行数要增加，内部任务队列要清除该项
+      // 一个任务执行完毕后，要适当对执行数做减少，做结果缓存，以及触发下一轮轮询（因为当前执行数减少了）
+      let self = this;
+
+      while (self.running < pool && self.queue.length) {
+        self.running++;
+        let task = self.queue.shift();
+        task()
+          .then((res) => {
+            self.results.push(res);
+          })
+          .finally(() => {
+            // 这里的finally的意思是不在乎是否成功，这里关注是否执行过（来过）
+            // 如果希望不是这样，需要补充为catch，并需要做相应的退出整个tasks的操作self.queue = 0
+            self.running--;
+            self.next();
+          });
+        // .catch((err) => {
+        //   self.queue = 0;
+        //    此步需要停止next调用，防止callback执行。running只要没减就不会执行callbask
+        //   throw new Error(err);
+        // });
+      }
+
+      if (self.running === 0) {
+        callback(self.results);
+      }
+    }
+  }
+  let TQ = new TaskQueue();
+  tasks.forEach((task) => TQ.pushTask(task));
+}
+createReq(tasks, 2, (res) => {
+  console.log(res);
+});
+// 两种解法都有一个感觉，就是必须在任务异步'完成时'去 '执行'下一个任务，但两种思路对 完成的判断有差异，具体体会代码；第一种感觉更像伪方案
+```
+
+### js 异步处理机制：EventQueue 和 EventLoop
+
+后期补充
+
 ## 前后端通信中的'同源/跨域'解决方案
 
 ### 1. 前端开发的通信历史
