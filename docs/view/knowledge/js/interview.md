@@ -917,3 +917,241 @@ function ajax3(option = {}) {
   其中在需要的源位置，可以设置为 * ，但需要明确的是，设为*之后无法带 cookie，这也是跨域资源共享的缺点
 - **最常用**的方式 Proxy, 开发中 webpack 中有自己代理模式来解决开发中的跨域问题，wbpack 会在本地建立自己的本地服务器（基于 node），网页端向本地服务器请求，本地服务器再代为请求接口服务器，从而避开浏览器的跨域限制；部署时一般通过 nginx 来实现代理
 - 当然还有一些不太常用的方案自己可以再自己研究下，比如 postmessage 一般用于 H5 和 app 通信时用，iframe 来的快，死的也快[具体看这里](https://wangdoc.com/javascript/bom/same-origin.html#ajax)
+
+## js 中的高频（8 种）设计模式
+
+### 设计模式存在的必要
+
+- 设计模式是一种思想，用来规范化编程，使代码整洁、易懂、好维护拓展
+
+### 单例模式与命令模式
+
+- `单例模式`相对最简单，思想就是基于单独的实例，来管理一个模块中的内容，实现模块之间的单独划分（但也可以实现模块之间方法的相互调用）
+- 模块化最初使用闭包、后面有 AMD 、后面出现了 CMD（node）、以及标准的 esMOdule
+- 一个闭包属于一个模块，且只有一个，也是单例的一种实现，后期 symbol 也可以用来实现传统写法的单利[symbol 实现单例](https://es6.ruanyifeng.com/#docs/symbol#%E5%AE%9E%E4%BE%8B%EF%BC%9A%E6%A8%A1%E5%9D%97%E7%9A%84-Singleton-%E6%A8%A1%E5%BC%8F)
+- `命令模式 `按照一定的顺序执行对应的方法，来实现整个板块的开发，主要是可以控制执行的先后
+- **单例模式特点**因为只有一个，所以多个之间会相互影响（这里就是全局只有一个的的意思，但这不正就是单例的特点嘛，这里相互影响更多说的是模块化的问题，所以对这种单例和模块结合论不太认同）
+- 这个和蓝色那本 js 设计模式上讲的有些区别
+
+### 构造器模式与工厂模式
+
+- 面向对象的基础（缘由），实例之间既有相同（公共方法），又有区别（私有属性），来’弥补‘单例的缺点
+- js 中没有类，但一定程度上，可以认为构造函数就是类
+- es6 中 class 写法就是`构造器模式`（不传参的情况下 new 类名后面的括号可以不加，优先级能差 1）
+- 插件组件封装、类库封装、框架封装一般用构造器模式
+- `工厂模式` 帮助开发者实现调用切换，或者实现一些中转处理（就是保证逻辑固定的情况下根据不同输入产出），批量生产不准确
+- 这里整了一下 jquery 的 innit 方法
+- ```js
+  (function () {
+    var jquery = function (selector, context) {
+      // 通过工厂模式转化，将需要实例化new的操作转为函数调用
+      return new jquery.fn.init(selector, context);
+    };
+    // 这里有一个点 jquery._proto_ = init.prototype
+    // 我的理解这里就是给prototype属性一个简写fn
+    jquery.fn = jquery.prototype = {};
+    // 这里就是编写具体的init方法，并存储变量
+    var init = (jquery.fn.init = function (selector, context) {});
+    // 这也是我至今不明白的点，为什么要刻意将init的原型指向jquery.prototype,这样就形成一个闭环，但作用嗯？？看一些文章说下面才是实现无new实现的核心
+    // 等价于下面,
+    // jquery._proto_ = jquery.prototype
+    // 如果没有 jquery._proto_ = init.prototype
+    // 而这里的 init.prototype 应该是Function，而这里的init实例化理论上是jquery的实例，也就是上面的jquery._proto_ = jquery.prototype
+    init.prototype = jquery.fn;
+    // 又一个想法是这样jquery实例去查找一些原型链上的方法时会直接去自己的prototype上找，而不是去Function.prototype
+    window.$ = jquery;
+  })();
+  ```
+
+### 观察者模式
+
+- 定义上呢是`观察者` 观察`目标`,一个目标会被多次观察，目标变化后通过 一些手段，让观察它的观察者知道，并作出相应的行为
+- 代码封装上 目标 =》 被观察 =》 目标变化 => 观察者收到消息
+- 这种模式只有两个角色，`目标`对象上来实现该模式的核心，大部分功能在目标对象上封装 notify（触发通知）、add（添加、保存观察者）;`观察者`实现的 update 实际上实现的还是个性化需求,在通知到达时触发
+- 观察者模式手写
+
+  ```js
+  // vue 2版本的响应式原理
+  //观察者1
+  class Observer {
+    update() {
+      //消息触达（达到触发条件）
+    }
+  }
+  //观察者2
+  class Demo {
+    update(mes) {
+      console.log("消息接收成功" + mes);
+    }
+  }
+
+  //目标对象
+  class Subject {
+    //observers = new OvserverListr();
+    observers = [];
+    add(ob) {
+      this.observers.add(ob);
+    }
+    remover(ob) {
+      //和前面一样包一层
+    }
+    notify(...params) {
+      for (let i = 0; i < this.observers.count(); i++) {
+        // let item = this.observers.get(i);
+        let item = this.observers[i];
+        item.update(...params);
+      }
+    }
+  }
+  // 单独拎出来的目标群维护,可以直接在subject里写，不写有助于理解，写了有助于代码管理，这边直接不用
+  class ObserverList {
+    constructor() {
+      this.obeserverList = [];
+    }
+    remove(ob) {
+      this.oberverList = this.oberverList.filter((item) => ob !== item);
+      return this;
+    }
+    add(ob) {
+      this.observerList.push(ob);
+      return this;
+    }
+    get(index) {
+      return this.oberserList[index];
+    }
+    count() {
+      return this.ObserverList.length;
+    }
+  }
+  //这个实例化不带括号之前出现过（前面构造器模式）,这里格式化工具会自己带
+  let sub = new Subjece();
+  sub.add(new Observer());
+  sub.add(new Demo());
+  sub.add(new Observer());
+  serTimeout(() => {
+    sub.notify("触发通知");
+  }, 1000);
+  ```
+
+### 中介模式
+
+- 这里面 有三类角色 `甲方` `乙方`（可以多个） 和`中介`
+- 里面 甲乙可以不经过任何封装，'协调'全在中介这
+- 手写中介模式
+
+  ```js
+  let mediator = (function () {
+    let topics = {};
+    // 订阅： 订阅A组件中的某个方法（这里的方法可以认为是原始反应），
+    let subscribe = function (topic) {
+      !topics[topic] ? (topics[topic] = []) : null;
+      topics[topic].push({
+        context: this,
+        callback,
+      });
+    // 发布  原始反应所带来的连带效应（之前关注过原始反应的组件B等）
+    let publish= function(topic,...params) {
+        if (!topics[topic]) return
+        topics[topic].forEach(item => {
+            let {
+                callback,
+                context
+            } = item
+            callback.call(context,...params)
+        })
+    }
+    return {
+        subscribe,
+        publish
+    }
+  })();
+  ```
+
+### 发布订阅模式
+
+- 和上述两种方式特别相似，也极易混淆，三种之间可以理解为一种晋级
+- `发布订阅`结合 Event 模型，js 中就是给当前元素的某个行为绑定多个不同的方法（事件池机制），事件行为触发，会一次通知事件池中的方法执行
+- 这里提一嘴 dom0 级和 dom2 级事件绑定（上面指的是 dom2 级绑定）
+- dom0 事件绑定原理是对象的属性方式，绑定的事件也是'属性'（方法），所以存在覆盖属性现象
+- 手写发布订阅
+  ```js
+  // 这里似乎用一种比较少见的写法实现，没太整明白，先把代码记下来
+  (function () {
+    // 事件池
+    let pond = [];
+    //向事件池注入方法
+    function subscribe(func) {
+      //去重
+      if (pond.includes(func)) return;
+      pond.push(func);
+      //每次执行，返回的方法是用来移除当前新增的这一项的
+      return function unsubscribe() {
+        pond = pond.filter((item) => item !== func);
+      };
+    }
+    // 通知事件池中的每个方法
+    subscribe.fire = function (...params) {
+      pond.forEach((item) => {
+        if (typeof item === "function") {
+          item(...params);
+        }
+      });
+    };
+    window.subscribe = subscribe;
+  })();
+  let unsubscribe1 = subscribe(function () {
+    console.log(1, arguments);
+  });
+  //unsubscribe1();
+  subscribe(function () {
+    console.log(2, arguments);
+  });
+  subscribe(function () {
+    console.log(3);
+    unsubscribe1();
+  });
+  subscribe(function () {
+    console.log(4);
+  });
+  setTimeout(() => {
+    subscribe.fire(10, 20, 30);
+  }, 1000);
+  setTimeout(() => {
+    subscribe.fire(10, 20, 30);
+  }, 2000);
+  ```
+- 实际业务上，接口数据返回后需要同时修改多个不同模块，用发布订阅可维护性会好很多（但似乎上述两种种模式都适用这样的场景），但这个地方的写法在目前的我看来就是上面的中介模式
+- 目前对着三种模式的理解都是，找地方保存未来在某个特定'节点'执行的操作，到达节点后，去列表中逐个触发
+- 面向对象完善发布订阅
+  ```js
+  class Sub {
+    constructor() {
+      this.pond = [];
+    }
+    subscrobe() {
+      // 向事件池中订阅任务
+      let self = this,
+        pond = self.pond;
+      if (!pond.includes(func)) pond.push(func);
+      return function unsubscribe() {
+        // 不是很能理解这里非要用闭包来实现解绑的必要性
+        // 该闭包唯一使用到的是func变量，但js事件的解绑机制就是相同的函数（堆内存地址一致）才可以解绑，也就是func应该在用户解绑时的传入决定
+        pond = pond.filter((item) => item !== func);
+      };
+    }
+    fire(...params) {
+      //执行当前实例事件池中的所有任务
+      pond.forEach((item) => {
+        if (typeof item === "function") item(...params);
+      });
+    }
+  }
+  //这一套发布订阅和Event有点不一样，是用多个事件池来维护不同的事件
+  //两个维度来解决，函数添加事件type`pond = [{type:'A',callback:func}]`；和从事件维度区分函数 `pond = {'A': [func1,func2]}`
+  ```
+- 最后还有一个最终版，就是之前我知道的 Event 写法
+- 这里解绑时提到一点删除数组（splice 方法）时的问题，**数组塌陷问题**，一个正在被遍历（从前到后）的数组被 splice （修改）后会'丢失'数据，**可以将删除项设置为 null，下一次再删除；从后到前遍历也能解决；手动控制循环变量也可**
+
+### 装饰器模式和 es7 中的装饰器（Decorator）
+
+后期补充
